@@ -20,6 +20,7 @@ import React, {Component} from 'react';
 import {Col, Container, Row} from 'react-bootstrap';
 import Table from 'react-bootstrap/Table';
 import backend from '../../backend';
+import dispatcher from '../../dispatcher';
 import {createCurlCommand} from '../../utils';
 import validation from '../../validation';
 import ButtonField from '../fields/ButtonField';
@@ -45,6 +46,7 @@ class ConfigurationPage extends Component {
       },
       newUsername: '',
       newPassword: '',
+      pcapTimeout: '120'
     };
   }
 
@@ -55,7 +57,8 @@ class ConfigurationPage extends Component {
   }
 
   saveSettings = () => {
-    if (this.validateSettings(this.state.settings)) {
+    if (this.validatePcapTimeout(this.state.pcapTimeout) && this.validateSettings(this.state.settings)) {
+      dispatcher.dispatch('pcap_timeout_update', {timeout: Number(this.state.pcapTimeout)});
       backend
         .post('/setup', this.state.settings)
         .then(() => {
@@ -66,6 +69,12 @@ class ConfigurationPage extends Component {
         });
     }
   };
+
+  validatePcapTimeout = (timeout) => {
+    let valid = typeof timeout === 'string' && validation.isPositiveInteger(timeout);
+    this.setState({pcapTimeoutError: valid ? '' : 'invalid pcap_timeout'});
+    return valid;
+  }
 
   validateSettings = (settings) => {
     let valid = true;
@@ -165,6 +174,13 @@ class ConfigurationPage extends Component {
                         value={settings.config['flag_regex']}
                         onChange={(v) => this.updateParam((s) => (s.config['flag_regex'] = v))}
                         error={this.state.flagRegexError}
+                      />
+                      <InputField 
+                        name="pcap_timeout"
+                        value={this.state.pcapTimeout}
+                        placeholder="timeout in seconds"
+                        onChange={(v) => this.setState({pcapTimeout: v})}
+                        error={this.state.pcapTimeoutError}
                       />
                       <div style={{marginTop: '10px'}}>
                         <CheckField

@@ -29,17 +29,25 @@ class Notifications extends Component {
   };
 
   pcapTimer = null;
-  pcapTimeout = 120 * 1000;
+  pcapTimeout = null;
 
   componentDidMount() {
     dispatcher.register('notifications', this.handleNotifications);
+    dispatcher.register('pcap_timeout_update', this.handlePcapTimeoutUpdate);
   }
-
+  
   componentWillUnmount() {
     dispatcher.unregister(this.handleNotifications);
+    dispatcher.unregister(this.handlePcapTimeoutUpdate);
   }
 
   handleNotifications = (n) => this.notificationHandler(n);
+
+  handlePcapTimeoutUpdate = (e) => {
+    this.pcapTimeout = e.timeout * 1000;
+    this.startPcapCompletedTimer();
+    console.log(`pcapTimeout updated to ${this.pcapTimeout}, timeout started.`);
+  }
 
   notificationHandler = (n) => {
     switch (n.event) {
