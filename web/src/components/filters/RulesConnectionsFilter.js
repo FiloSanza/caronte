@@ -36,31 +36,42 @@ class RulesConnectionsFilter extends Component {
     };
   }
 
-  componentDidMount() {
-    const params = new URLSearchParams(this.props.location.search);
-    let activeRules = params.getAll('matched_rules') || [];
-
+  loadRules = async () => {
     backend.get('/api/rules').then((res) => {
+      const params = new URLSearchParams(this.props.location.search);
+      let activeRules = params.getAll('matched_rules') || [];
       let rules = res.json.flatMap((rule) => (rule.enabled ? [{id: rule.id, name: rule.name}] : []));
       activeRules = rules.filter((rule) => activeRules.some((id) => rule.id === id));
       this.setState({rules, activeRules});
     });
-
-    this.connectionsFiltersCallback = (payload) => {
-      if ('matched_rules' in payload && !_.isEqual(payload['matched_rules'].sort(), this.state.activeRules.sort())) {
-        const newRules = this.state.rules.filter((r) => payload['matched_rules'].includes(r.id));
-        this.setState({
-          activeRules: newRules.map((r) => {
-            return {id: r.id, name: r.name};
-          }),
-        });
-      }
-    };
-    dispatcher.register('connections_filters', this.connectionsFiltersCallback);
   }
 
+  componentDidMount() {
+    this.loadRules();
+    dispatcher.register('connections_filters', this.connectionsFiltersCallback);
+    dispatcher.register('notifications', this.handleNotifications);
+  }
+  
   componentWillUnmount() {
     dispatcher.unregister(this.connectionsFiltersCallback);
+    dispatcher.register(this.handleNotifications);
+  }
+
+  connectionsFiltersCallback = (payload) => {
+    if ('matched_rules' in payload && !_.isEqual(payload['matched_rules'].sort(), this.state.activeRules.sort())) {
+      const newRules = this.state.rules.filter((r) => payload['matched_rules'].includes(r.id));
+      this.setState({
+        activeRules: newRules.map((r) => {
+          return {id: r.id, name: r.name};
+        }),
+      });
+    }
+  };
+
+  handleNotifications = (payload) => {
+    if (payload.event === 'rules.new' || payload.event === 'rules.edit') {
+      this.loadRules();
+    }
   }
 
   onChange = (activeRules) => {
