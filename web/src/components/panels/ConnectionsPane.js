@@ -111,7 +111,13 @@ class ConnectionsPane extends Component {
 
   handleNotifications = (payload) => {
     if (payload.event === 'rules.new' || payload.event === 'rules.edit') {
-      this.loadRules().then(() => log.debug('Loaded connection rules after notification update'));
+      this.loadRules()
+        .then(() => log.debug('Loaded connection rules after notification update'))
+        .then(() => {
+          if (payload.event === 'rules.edit'){
+            this.loadConnections({limit: this.queryLimit}, this.state.additionalParams)
+          }
+        });
     }
     if (payload.event === 'services.edit') {
       this.loadServices().then(() => log.debug('Services reloaded after notification update'));

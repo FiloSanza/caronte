@@ -154,7 +154,7 @@ func (cc ConnectionsController) GetConnections(c context.Context, filter Connect
 	if filter.MatchedRules != nil && len(filter.MatchedRules) > 0 {
 		matchedRules := make([]RowID, len(filter.MatchedRules))
 		for i, elem := range filter.MatchedRules {
-			if id, err := RowIDFromHex(elem); err != nil {
+			if id, err := RowIDFromHex(elem); err != nil { //TODO: check if rule is enabled
 				log.WithError(err).WithField("filter", filter).Panic("failed to convert matched_rules ids")
 			} else {
 				matchedRules[i] = id
