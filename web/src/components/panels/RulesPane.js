@@ -397,9 +397,30 @@ class RulesPane extends Component {
             <Container className="p-0">
               <Row>
                 <Col>
-                  <InputField name="name" inline value={rule.name} onChange={(v) => this.updateParam((r) => (r.name = v))} error={this.state.ruleNameError} />
-                  <ColorField inline value={rule.color} error={this.state.ruleColorError} onChange={(v) => this.updateParam((r) => (r.color = v))} />
-                  <TextField name="notes" rows={2} value={rule.notes} onChange={(v) => this.updateParam((r) => (r.notes = v))} />
+                  <InputField 
+                    name="name" 
+                    inline 
+                    value={rule.name} 
+                    onChange={(v) => this.updateParam((r) => (r.name = v))} 
+                    error={this.state.ruleNameError}
+                  />
+                  <ColorField 
+                    inline 
+                    value={rule.color} 
+                    error={this.state.ruleColorError} 
+                    onChange={(v) => this.updateParam((r) => (r.color = v))} 
+                  />
+                  <TextField 
+                    name="notes" 
+                    rows={2} 
+                    value={rule.notes} 
+                    onChange={(v) => this.updateParam((r) => (r.notes = v))} 
+                  />
+                  <CheckField 
+                    name="enabled"
+                    checked={rule.enabled}
+                    onChange={(v) => this.updateParam((r) => (r.enabled = v))}
+                  />
                 </Col>
 
                 <Col style={{paddingTop: '6px'}}>

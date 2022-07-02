@@ -190,7 +190,8 @@ func (rm *rulesManagerImpl) UpdateRule(context context.Context, id RowID, rule R
 	}
 
 	updated, err := rm.storage.Update(Rules).Context(context).Filter(OrderedDocument{{Key: "_id", Value: id}}).
-		One(UnorderedDocument{"name": rule.Name, "color": rule.Color})
+		One(UnorderedDocument{"name": rule.Name, "color": rule.Color, "enabled": rule.Enabled})
+
 	if err != nil {
 		log.WithError(err).WithField("rule", rule).Panic("failed to update rule on database")
 	}
@@ -199,6 +200,7 @@ func (rm *rulesManagerImpl) UpdateRule(context context.Context, id RowID, rule R
 		rm.mutex.Lock()
 		newRule.Name = rule.Name
 		newRule.Color = rule.Color
+		newRule.Enabled = rule.Enabled
 
 		delete(rm.rulesByName, newRule.Name)
 		rm.rulesByName[newRule.Name] = newRule
